@@ -14,6 +14,7 @@ const Playground = () => {
   const [placementMode, setPlacementMode] = useState(null);
   const [showGround, setShowGround] = useState(true);
   const [gravity, setGravity] = useState(9.8);
+  const [clickPoints, setClickPoints] = useState([]);
   const [objects, setObjects] = useState([
     new PhysicsObject({
       shape: "circle",
@@ -89,22 +90,68 @@ const Playground = () => {
   };
 
   const handleCanvasClick = (position) => {
-    if (placementMode) {
-      // Create a new object at the clicked position
+    if (!placementMode) return;
+
+    if (placementMode === "circle") {
       const newObject = new PhysicsObject({
-        shape: placementMode,
-        position: position,
+        shape: "circle",
+        position,
+        radius: 0.5,
         velocity: new Vector2(0, 0),
         acceleration: new Vector2(0, 0),
-        radius: 0.5, // radius in meters for circles
-        width: 1, // width in meters for rectangles
-        height: 1, // height in meters for rectangles
         mass: 1,
       });
-
       setObjects([...objects, newObject]);
-      // Exit placement mode after placing the object
       setPlacementMode(null);
+    }
+
+    if (placementMode === "square") {
+      if (clickPoints.length === 0) {
+        setClickPoints([position]);
+      } else {
+        const [first] = clickPoints;
+        const width = Math.abs(position.x - first.x);
+        const height = Math.abs(position.y - first.y);
+
+        // Bottom-left corner (not center)
+        const bottomLeft = new Vector2(
+          Math.min(position.x, first.x),
+          Math.min(position.y, first.y)
+        );
+
+        const newObject = new PhysicsObject({
+          shape: "rectangle",
+          position: bottomLeft, // ⬅️ now consistent with your renderer
+          width,
+          height,
+          velocity: new Vector2(0, 0),
+          acceleration: new Vector2(0, 0),
+          mass: 1,
+        });
+
+        setObjects([...objects, newObject]);
+        setClickPoints([]);
+        setPlacementMode(null);
+      }
+    }
+
+    if (placementMode === "triangle") {
+      const newPoints = [...clickPoints, { x: position.x, y: position.y }];
+      setClickPoints(newPoints);
+      if (newPoints.length === 3) {
+        const newTriangle = new PhysicsObject({
+          shape: "triangle",
+          position: new Vector2(0, 0), // not used here
+          velocity: new Vector2(0, 0),
+          acceleration: new Vector2(0, 0),
+          points: newPoints, // the 3 vertices
+          mass: 1,
+        });
+
+        setObjects([...objects, newTriangle]);
+        setPlacementMode(null); // exit triangle mode
+        setClickPoints([]); // reset for next triangle
+      }
     }
   };
 

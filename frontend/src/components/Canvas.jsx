@@ -28,7 +28,7 @@ const Canvas = forwardRef(({ objects, setObjects, isRunning, gravity, onSelectOb
   const [zoomFactor, setZoomFactor] = useState(1.0);
   
   // Expose methods to parent component
-  useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({ 
     resetCamera: () => {
       const newOffset = { x: 0, y: 0 };
       setCameraOffset(newOffset);
