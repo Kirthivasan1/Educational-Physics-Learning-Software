@@ -21,7 +21,7 @@ export class Renderer {
     this.zoomFactor = 1.0;
     this.cameraOffset = { x: 0, y: 0 };
   }
-  
+
   /**
    * Updates the camera offset for panning
    * @param {Object} offset - The camera offset {x, y}
@@ -29,7 +29,7 @@ export class Renderer {
   updateCameraOffset(offset) {
     this.cameraOffset = offset;
   }
-  
+
   /**
    * Updates the zoom factor
    * @param {number} factor - The zoom factor to apply (positive for zoom in, negative for zoom out)
@@ -39,7 +39,7 @@ export class Renderer {
     this.zoomFactor = Math.max(0.5, Math.min(5.0, this.zoomFactor + factor));
     this.scale = this.baseScale * this.zoomFactor;
   }
-  
+
   /**
    * Resets the camera to default position and zoom
    */
@@ -48,7 +48,7 @@ export class Renderer {
     this.zoomFactor = 1.0;
     this.scale = this.baseScale;
   }
-  
+
   /**
    * Converts simulation X coordinate to canvas X coordinate
    * @param {number} x - X coordinate in simulation space
@@ -57,7 +57,7 @@ export class Renderer {
   toCanvasX(x) {
     return (x - this.cameraOffset.x) * this.scale;
   }
-  
+
   /**
    * Converts simulation Y coordinate to canvas Y coordinate
    * @param {number} y - Y coordinate in simulation space
@@ -66,25 +66,25 @@ export class Renderer {
   toCanvasY(y) {
     return this.canvasHeight - (y - this.cameraOffset.y) * this.scale;
   }
-  
+
   /**
    * Converts canvas X coordinate to simulation X coordinate
    * @param {number} canvasX - X coordinate in canvas space
    * @returns {number} - X coordinate in simulation space
    */
   toSimX(canvasX) {
-    return (canvasX / this.scale) + this.cameraOffset.x;
+    return canvasX / this.scale + this.cameraOffset.x;
   }
-  
+
   /**
    * Converts canvas Y coordinate to simulation Y coordinate
    * @param {number} canvasY - Y coordinate in canvas space
    * @returns {number} - Y coordinate in simulation space
    */
   toSimY(canvasY) {
-    return ((this.canvasHeight - canvasY) / this.scale) + this.cameraOffset.y;
+    return (this.canvasHeight - canvasY) / this.scale + this.cameraOffset.y;
   }
-  
+
   /**
    * Draws a circle on the canvas
    * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
@@ -102,7 +102,7 @@ export class Renderer {
     );
     ctx.fill();
   }
-  
+
   /**
    * Draws a rectangle on the canvas
    * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
@@ -110,17 +110,29 @@ export class Renderer {
    */
   drawRect(ctx, obj) {
     ctx.fillStyle = obj.isStatic ? "#70543e" : "#8B4513";
-    // For rectangles, position.y is the bottom of the rectangle
-    const topLeftX = this.toCanvasX(obj.position.x);
-    const topLeftY = this.toCanvasY(obj.position.y + obj.height);
-    ctx.fillRect(topLeftX, topLeftY, obj.width * this.scale, obj.height * this.scale);
-    
-    // Draw a border for better visibility
+
+    // Calculate top-left based on center position
+    const topLeftX = this.toCanvasX(obj.position.x - obj.width / 2);
+    const topLeftY = this.toCanvasY(obj.position.y + obj.height / 2);
+
+    ctx.fillRect(
+      topLeftX,
+      topLeftY,
+      obj.width * this.scale,
+      obj.height * this.scale
+    );
+
+    // Border
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 1;
-    ctx.strokeRect(topLeftX, topLeftY, obj.width * this.scale, obj.height * this.scale);
+    ctx.strokeRect(
+      topLeftX,
+      topLeftY,
+      obj.width * this.scale,
+      obj.height * this.scale
+    );
   }
-  
+
   /**
    * Draws a triangle on the canvas
    * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
@@ -129,48 +141,48 @@ export class Renderer {
   drawTriangle(ctx, obj) {
     ctx.fillStyle = "green";
     ctx.beginPath();
-    
+
     // Save the current context state
     ctx.save();
-    
+
     // Translate to the position of the triangle
     const centerX = this.toCanvasX(obj.position.x);
     const centerY = this.toCanvasY(obj.position.y);
     ctx.translate(centerX, centerY);
-    
+
     // Apply rotation
     ctx.rotate(-obj.rotation); // Negative because canvas Y is inverted
-    
+
     // Draw the triangle relative to the center position
     // We need to convert the points to canvas space but relative to the center
     ctx.beginPath();
     const points = obj.points;
-    const firstPoint = { 
-      x: points[0].x * this.scale, 
-      y: -points[0].y * this.scale // Negate Y because canvas Y is inverted
+    const firstPoint = {
+      x: points[0].x * this.scale,
+      y: -points[0].y * this.scale, // Negate Y because canvas Y is inverted
     };
-    
+
     ctx.moveTo(firstPoint.x, firstPoint.y);
-    
+
     for (let i = 1; i < points.length; i++) {
       ctx.lineTo(
-        points[i].x * this.scale, 
+        points[i].x * this.scale,
         -points[i].y * this.scale // Negate Y because canvas Y is inverted
       );
     }
-    
+
     ctx.closePath();
     ctx.fill();
-    
+
     // Draw a border for better visibility
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 1;
     ctx.stroke();
-    
+
     // Restore the context to its original state
     ctx.restore();
   }
-  
+
   /**
    * Draws all objects in the scene
    * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
@@ -178,7 +190,7 @@ export class Renderer {
    */
   drawScene(ctx, objects) {
     ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    
+
     objects.forEach((obj) => {
       if (!obj?.position) {
         console.warn("⚠️ Skipping object without position", obj);

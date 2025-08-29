@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { Renderer } from "../physics/renderer";
 import { SimulationManager } from "../physics/simulationManager";
-import PhysicsObject from "./physicsObject";
+import PhysicsObject from "../physics/physicsObject";
 import { Vector2 } from "../physics/Vector2";
 
 const CANVAS_WIDTH = 800;

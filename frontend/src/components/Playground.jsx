@@ -4,7 +4,7 @@ import InfoPanel from "./InfoPanel";
 import ControlPanel from "./ControlPanel";
 import Canvas from "./Canvas";
 import ObjectProperties from "./ObjectProperties";
-import PhysicsObject from "./physicsObject";
+import PhysicsObject from "../physics/physicsObject";
 import { Vector2 } from "../physics/Vector2";
 import { SimulationManager } from "../physics/simulationManager";
 
@@ -33,6 +33,10 @@ const Playground = () => {
       mass: 1,
     }),
   ]);
+  if (typeof window !== "undefined") {
+    window.debugObjects = objects;
+    window.setDebugObjects = setObjects;
+  }
 
   const [isRunning, setIsRunning] = useState(false);
 
@@ -42,7 +46,7 @@ const Playground = () => {
       // Add ground rectangle
       const groundObject = new PhysicsObject({
         shape: "rectangle",
-        position: new Vector2(0, 0), // Position at bottom of screen
+        position: new Vector2(10, 0.5), // Position at bottom of screen
         velocity: new Vector2(0, 0),
         acceleration: new Vector2(0, 0),
         width: 20, // Width to cover the entire simulation area (20 meters wide)
@@ -55,7 +59,7 @@ const Playground = () => {
         // Filter out any existing ground objects to avoid duplicates
         const filteredObjects = prev.filter(
           (obj) =>
-            !(obj.shape === "rectangle" && obj.isStatic && obj.position.y === 0)
+            !(obj.shape === "rectangle" && obj.isStatic && obj.position.y === 0.5)
         );
         return [...filteredObjects, groundObject];
       });
@@ -64,7 +68,7 @@ const Playground = () => {
       setObjects((prev) =>
         prev.filter(
           (obj) =>
-            !(obj.shape === "rectangle" && obj.isStatic && obj.position.y === 0)
+            !(obj.shape === "rectangle" && obj.isStatic && obj.position.y === 0.5)
         )
       );
     }
@@ -105,7 +109,7 @@ const Playground = () => {
       setPlacementMode(null);
     }
 
-    if (placementMode === "square") {
+    if (placementMode === "rectangle") {
       if (clickPoints.length === 0) {
         setClickPoints([position]);
       } else {

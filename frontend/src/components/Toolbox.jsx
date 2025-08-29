@@ -4,7 +4,7 @@ import { Circle, Square, Triangle } from "lucide-react";
 const Toolbox = ({ onAdd, placementMode }) => {
   const tools = [
     { type: "circle", label: "Circle", icon: <Circle size={20} /> },
-    { type: "square", label: "Square", icon: <Square size={20} /> },
+    { type: "rectangle", label: "Rectangle", icon: <Square size={20} /> },
     { type: "triangle", label: "Triangle", icon: <Triangle size={20} /> },
   ];
 

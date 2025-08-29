@@ -32,7 +32,7 @@ export class SimulationManager {
     this.resolveCollisions(objects);
 
     // Then update physics for each object
-    return this.updatePhysics(objects, deltaTime, this.gravity);
+    return this.updatePhysics(objects, deltaTime);
   }
 
   /**
@@ -55,8 +55,7 @@ export class SimulationManager {
    * @param {number} gravity - Gravity acceleration in m/s^2
    * @returns {Array} - Updated objects
    */
-  updatePhysics(objects, deltaTime, gravity = this.gravity) {
-    this.gravity = gravity;
+  updatePhysics(objects, deltaTime) {
     // Create deep copies of all objects to avoid reference issues
     const objectsCopy = objects.map((obj) => {
       if (!obj?.position) {
